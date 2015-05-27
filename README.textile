@@ -1,0 +1,86 @@
+
+XMLParser class check xml file on server, download it, parse xml and present alert view with parameters from xml. If user press “YES” button in alert view, web link will be open in Safari. 
+
+h4. To implement it you must:
+
+# Copy *_PopUpWithDataFromXML_* folder into your project folder.
+# In your *RootViewController.h* include header: 
+
+<pre>
+#import "XMLParser.h"
+</pre>
+
+# In your *RootViewController.h* include:
+
+<pre>
+@interface RootViewController : UIViewController <UIAlertViewDelegate,XMLParserDelegate> {
+    XMLParser *parser;
+NSURL *url;
+}
+</pre>
+
+# In your *RootViewController.m* include:
+
+<pre>
+#import "InfoViewController.h"
+
+@implementation RootViewController
+#pragma mark - Lazily instantiating 
+-(XMLParser *)parser {
+    if (!parser) {
+        parser = [[XMLParser alloc] init];
+        parser.delegate = self;
+    }
+    return parser;
+}
+
+- (void)viewDidLoad {
+//start downloading and parsing data from server
+    [[self parser] downloadCustomData];
+}
+
+#pragma mark - UIAlertView Delegate
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+        
+    NSString *title = [alertView buttonTitleAtIndex:buttonIndex];
+    
+    if([title isEqualToString:@"NO"])
+    {
+        NSLog(@"NO");
+    }
+    else if([title isEqualToString:@"YES"])
+    {
+        NSLog(@"YES");
+        //Or you can open Safari and show link
+        // [[UIApplication sharedApplication] openURL:url];
+       
+       //create controller and show data
+        
+        InfoViewController *infoController = [[InfoViewController alloc] initWithURL:url];
+        [url release];
+        [self.navigationController pushViewController:infoController animated:YES];
+        [infoController release];
+    } 
+}
+
+[[#pragma mark - XMLParser Delegate
+
+-(void)parserDetectNewDataToShow:(NSDictionary *)data {
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[data objectForKey:@"title"] message:[data objectForKey:@"message"] delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES",nil];
+    url = [[NSURL alloc] initWithString:[data objectForKey:@"url"]];
+    if (alert) {
+        [alert show];
+    }
+    [alert release];
+}
+
+@end]]
+</pre>
+
+# In *InfoViewController.m* in _viewDidLoad_ customize your views.
+# Place your information in *TestFile.xml*.
+# Place *TestFile.xml* on your server. 
+# In *XMLParser.m* in _downloadCustomData_ method paste link to *TestFile.xml* file on your server.
+# Change version key to show alert view once.
